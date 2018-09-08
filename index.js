@@ -22,7 +22,8 @@ app.use(
   })
 );
 app.get('/api/cheeses', (req, res) => {
-  return res.json([
+  // return
+  res.json([
     "Bath Blue",
     "Barkham Blue",
     "Buxton Blue",
