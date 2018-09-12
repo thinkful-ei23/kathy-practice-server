@@ -3,9 +3,10 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const knex = require('knex');
+const { dbConnect, dbGet } = require('./db-knex');
+let knex;
 const bodyParser = require('body-parser');
-const { dbConnect } = require('./db-knex');
+
 const { PORT, CLIENT_ORIGIN } = require('./config');
 //const { dbConnect } = require('./db-mongoose');
 
@@ -23,14 +24,13 @@ app.use(
 app.use(cors({ origin: CLIENT_ORIGIN })
 );
 
-// app.use("/api/teacher", teacherRouter);
-// app.use("/api/student", studentRouter);
-// app.use("/api/course", courseRouter);
-
+//console.log(knex, 'knex')
 //===========GET TEACHER==============
 app.get('/api/teachers', jsonParser, (req, res, next) => {
-  //let filter = {};
-  teachers.filter()
+  console.log(knex.raw, 'knex raw not cooked')
+  knex('teachers')
+    .select('id', 'first_name')
+    // .from('teachers')
     .then(results => {
       res.json(results)
     })
@@ -74,6 +74,21 @@ app.post('/api/teachers', jsonParser, (req, res, next) => {
       next(err);
     });
 });
+//========UPDATE TEACHER ===========
+
+//=========DELETE TEACHER ==========
+
+//========GET STUDENT ==============
+//=========POST STUDENT ============
+//========UPDATE STUDENT ===========
+//=========DELETE STUDENT ==========
+
+//========GET CARD-COURSE ==============
+//=========POST CARD-COURSE ============
+//========UPDATE CARD-COURSE ===========
+//=========DELETE CARD-COURSE ==========
+
+
 
 function runServer(port = PORT) {
   const server = app
@@ -88,6 +103,7 @@ function runServer(port = PORT) {
 
 if (require.main === module) {
   dbConnect();
+  knex = dbGet();
   runServer();
 }
 
