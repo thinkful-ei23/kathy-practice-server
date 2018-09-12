@@ -42,7 +42,7 @@ app.get('/api/teachers', jsonParser, (req, res, next) => {
 app.post('/api/teachers', jsonParser, (req, res, next) => {
   console.log('hello dakota')
   const { first_name, last_name, email, password } = req.body;
-  console.log(req.body)
+  console.log(req.body, 'line 45 in index.js')
 
   /***** Never trust users. Validate input *****/
   // if (!first_name) {
@@ -51,12 +51,11 @@ app.post('/api/teachers', jsonParser, (req, res, next) => {
   //   return next(err);
   // }
   const newTeacher = {
-
     first_name: first_name,
     last_name: last_name,
     email: email,
     password: password,
-
+    teacher_code: 9876
   };
 
   knex('teachers')
