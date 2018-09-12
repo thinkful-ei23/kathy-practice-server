@@ -13,7 +13,7 @@
 //========== POST NEW TEACHER ===============
 
 
-
+//api - backend needs to get teachercode from db before student success register
 
 
 app.listen(process.env.PORT, () => console.log(

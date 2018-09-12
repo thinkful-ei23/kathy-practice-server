@@ -29,7 +29,7 @@ app.use(cors({ origin: CLIENT_ORIGIN })
 app.get('/api/teachers', jsonParser, (req, res, next) => {
   //console.log(knex.raw, 'knex raw not cooked')
   knex('teachers')
-    .select('id', 'first_name')
+    .select('id', 'first_name', 'last_name', 'password', 'email')
     // .from('teachers')
     .then(results => {
       res.json(results)
