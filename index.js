@@ -40,8 +40,8 @@ app.get('/api/teachers', jsonParser, (req, res, next) => {
 })
 //==========POST TEACHER=================WORKS
 app.post('/api/teachers', jsonParser, (req, res, next) => {
-
-  const { id, first_name, last_name, email, password, teacher_code } = req.body;
+  console.log('hello dakota')
+  const { first_name, last_name, email, password } = req.body;
   console.log(req.body)
 
   /***** Never trust users. Validate input *****/
@@ -51,12 +51,12 @@ app.post('/api/teachers', jsonParser, (req, res, next) => {
   //   return next(err);
   // }
   const newTeacher = {
-    id: id,
+
     first_name: first_name,
     last_name: last_name,
     email: email,
     password: password,
-    teacher_code: teacher_code
+
   };
 
   knex('teachers')
@@ -71,6 +71,7 @@ app.post('/api/teachers', jsonParser, (req, res, next) => {
         .json(result);
     })
     .catch(err => {
+      console.log(err, 'server side error')
       next(err);
     });
 });
@@ -90,7 +91,7 @@ app.get('/api/students', jsonParser, (req, res, next) => {
       next(err)
     })
 })
-//=========POST STUDENT ============
+//=========POST STUDENT ============WORKS
 app.post('/api/students', jsonParser, (req, res, next) => {
 
   const { id, name, last_name, email, password, teacher_id } = req.body;
