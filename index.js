@@ -24,7 +24,6 @@ app.use(
 app.use(cors({ origin: CLIENT_ORIGIN })
 );
 
-//console.log(knex, 'knex')
 //===========GET TEACHER==============WORKS
 app.get('/api/teachers', jsonParser, (req, res, next) => {
   //console.log(knex.raw, 'knex raw not cooked')
@@ -40,9 +39,9 @@ app.get('/api/teachers', jsonParser, (req, res, next) => {
 })
 //==========POST TEACHER=================WORKS
 app.post('/api/teachers', jsonParser, (req, res, next) => {
-  console.log('hello dakota')
+  //console.log('hello dakota')
   const { first_name, last_name, email, password } = req.body;
-  console.log(req.body, 'line 45 in index.js')
+  //console.log(req.body, 'line 45 in index.js')
 
   /***** Never trust users. Validate input *****/
   // if (!first_name) {
@@ -70,7 +69,7 @@ app.post('/api/teachers', jsonParser, (req, res, next) => {
         .json(result);
     })
     .catch(err => {
-      console.log(err, 'server side error')
+      //console.log(err, 'server side error')
       next(err);
     });
 });
@@ -82,7 +81,7 @@ app.post('/api/teachers', jsonParser, (req, res, next) => {
 app.get('/api/students', jsonParser, (req, res, next) => {
   //console.log(knex.raw, 'knex raw not cooked')
   knex('students')
-    .select('id', 'name', 'last_name')
+    .select('id', 'name', 'last_name', 'email', 'password', 'teacher_id')
     .then(results => {
       res.json(results)
     })
@@ -94,7 +93,7 @@ app.get('/api/students', jsonParser, (req, res, next) => {
 app.post('/api/students', jsonParser, (req, res, next) => {
 
   const { id, name, last_name, email, password, teacher_id } = req.body;
-  console.log(req.body)
+  //console.log(req.body)
 
   /***** Never trust users. Validate input *****/
   // if (!first_name) {
@@ -134,7 +133,7 @@ app.post('/api/students', jsonParser, (req, res, next) => {
 app.get('/api/courses', jsonParser, (req, res, next) => {
   //console.log(knex.raw, 'knex raw not cooked')
   knex('courses')
-    .select('id', 'title', 'teacher_id')
+    .select('id', 'title', 'description', 'teacher_id')
     .then(results => {
       res.json(results)
     })
@@ -143,6 +142,40 @@ app.get('/api/courses', jsonParser, (req, res, next) => {
     })
 })
 //=========POST CARD-COURSE ============
+app.post('/api/courses', jsonParser, (req, res, next) => {
+
+  const { id, title, description, teacher_id } = req.body;
+  //console.log(req.body)
+
+  /***** Never trust users. Validate input *****/
+  // if (!first_name) {
+  //   const err = new Error('Missing `first_name` in request body');
+  //   err.status = 400;
+  //   return next(err);
+  // }
+  const newCourse = {
+    id: id,
+    title: title,
+    description: description,
+    teacher_id: teacher_id
+  };
+
+  knex('courses')
+    .insert(newCourse)
+    .into('courses')
+    .returning(['id', 'title', 'description', 'teacher_id'])
+    .then((results) => {
+      const result = results[0];
+      res
+        .location(`${req.originalUrl}/${result.id}`)
+        .status(201)
+        .json(result);
+    })
+    .catch(err => {
+      next(err);
+    });
+});
+
 //========UPDATE CARD-COURSE ===========
 //=========DELETE CARD-COURSE ==========
 
