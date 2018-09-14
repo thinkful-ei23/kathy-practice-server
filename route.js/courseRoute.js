@@ -23,7 +23,7 @@ app.use(
 );
 app.use(cors({ origin: CLIENT_ORIGIN })
 );
-//======================
+
 //ENDPOINTS
 //============SIGN UP STUDENT===================
 app.post('/api/auth/signinS', jsonParser, (req, es, next) => {
