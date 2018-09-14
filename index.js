@@ -23,6 +23,14 @@ app.use(
 );
 app.use(cors({ origin: CLIENT_ORIGIN })
 );
+//============SIGN IN ===================
+//============LOG IN ===================
+//POST req
+//app.login('./api/auth/login', )
+//check if already exists
+
+
+//return fetch(`${API_BASE_URL}/protected`,
 
 //===========GET TEACHER==============WORKS
 app.get('/api/teachers', jsonParser, (req, res, next) => {
