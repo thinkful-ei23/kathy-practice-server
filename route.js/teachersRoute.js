@@ -3,11 +3,11 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const { dbConnect, dbGet } = require('./db-knex');
+const { dbConnect, dbGet } = require('./db-knex'); //TODO needed?
 let knex;
 const bodyParser = require('body-parser');
 
-const { PORT, CLIENT_ORIGIN } = require('./config');
+const { PORT, CLIENT_ORIGIN } = require('./config'); //TODO is PORT needed?
 //const { dbConnect } = require('./db-mongoose');
 
 const app = express();
@@ -27,10 +27,12 @@ app.use(cors({ origin: CLIENT_ORIGIN })
 //ENDPOINTS
 
 //============SIGN UP TEACHER===================
-app.post('/api', jsonParser, (req, res, next) => {
+//Route so user can register
+app.post('/api/teachers', jsonParser, (req, res, next) => {
   const requredFields = [first_name, last_name, email, password,]
   const missingField = requredFields.find(field => !(field in req.body));
 
+  //response object to notify users of error
   if (missingField) {
     return res.status(422).json({
       code: 422,
@@ -39,6 +41,7 @@ app.post('/api', jsonParser, (req, res, next) => {
       location: missingField
     });
   }
+  // Validate fields are strings
   const stringFields = ['first_name', 'last_name', 'email', 'password'];
   const nonStringField = stringFields.find(
     field => field in req.body && typeof req.body[field] !== 'string'
@@ -63,6 +66,8 @@ app.post('/api', jsonParser, (req, res, next) => {
   const nonTrimmedField = explicityTrimmedFields.find(
     field => req.body[field].trim() !== req.body[field]
   );
+
+  //response object to notify users of error
   if (nonTrimmedField) {
     return res.status(422).json({
       code: 422,
@@ -71,8 +76,9 @@ app.post('/api', jsonParser, (req, res, next) => {
       location: nonTrimmedField
     });
   }
+  //validate email and password conform to length min-max constraints
   const sizedFields = {
-    username: {
+    email: {
       min: 1
     },
     password: {
@@ -93,6 +99,7 @@ app.post('/api', jsonParser, (req, res, next) => {
       req.body[field].trim().length > sizedFields[field].max
   );
 
+  //response object to notify users of error
   if (tooSmallField || tooLargeField) {
     return res.status(422).json({
       code: 422,
@@ -112,7 +119,8 @@ app.post('/api', jsonParser, (req, res, next) => {
   first_name = first_name.trim();
   last_name = last_name.trim();
 
-
+  //check to see if there is a user with same email already registered
+  //with a response object to notify users of error
   return User.find({ email })
     .count()
     .then(count => {
@@ -137,7 +145,9 @@ app.post('/api', jsonParser, (req, res, next) => {
       });
     })
     .then(user => {
-      return res.status(201).json(user.serialize());
+      return res.status(201).//add json JWT
+        json(user.serialize());
+      //later, add location header: TODO
     })
     .catch(err => {
       // Forward validation errors on to the client, otherwise give a 500
@@ -184,10 +194,9 @@ app.post('/api/auth/login', jsonParser, (req, es, next) => {
 
 //===========GET ALL TEACHERS==============WORKS
 app.get('/api/teachers', jsonParser, (req, res, next) => {
-  //console.log(knex.raw, 'knex raw not cooked')
+
   knex('teachers')
     .select('id', 'first_name', 'last_name', 'password', 'email')
-    // .from('teachers')
     .then(results => {
       res.json(results)
     })
@@ -203,7 +212,6 @@ app.get('/api/teachers/:id', jsonParser, (req, res, next) => {
   knex.first('id', 'first_name', 'last_name', 'password', 'email')
     .from('teachers')
     .where('id', teacherId)
-
     .then(results => {
       res.json(results)
     })
@@ -248,6 +256,7 @@ app.post('/api/teachers', jsonParser, (req, res, next) => {
       next(err);
     });
 });
+
 //========PUT / UPDATE TEACHER ===========
 app.put('/api/teachers/:id', jsonParser, (req, res, next) => {
   const teacher_id = req.params.id;
@@ -267,7 +276,7 @@ app.put('/api/teachers/:id', jsonParser, (req, res, next) => {
     password: password,
   };
 
-  knex.insert('teachers')
+  knex('teachers')
     .update(updateTeacher)
     .where('id', teacher_id)
     .returning(['id', 'first_name', 'last_name', 'email', 'password '])
@@ -285,10 +294,11 @@ app.put('/api/teachers/:id', jsonParser, (req, res, next) => {
 
 
 //=========DELETE TEACHER ==========
-app.delete('/:id', (req, res, next) => {
-  knex.del()
+app.delete('/api/teachers/:id', (req, res, next) => {
+  knex
     .where('id', req.params.id)
-    .from('notes')
+    .from('teachers')
+    .del()
     .then(() => {
       res.status(204).end();
     })

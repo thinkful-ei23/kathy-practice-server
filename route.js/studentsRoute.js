@@ -26,7 +26,7 @@ app.use(cors({ origin: CLIENT_ORIGIN })
 //======================
 //ENDPOINTS
 //============SIGN UP STUDENT===================
-app.post('/api', jsonParser, (req, res, next) => {
+app.post('/api/students', jsonParser, (req, res, next) => {
   const requredFields = [name, last_name, email, password, teacher_id]
   const missingField = requredFields.find(field => !(field in req.body));
 
@@ -136,7 +136,9 @@ app.post('/api', jsonParser, (req, res, next) => {
       });
     })
     .then(user => {
-      return res.status(201).json(user.serialize());
+      return res.status(201). //add json JWT
+        json(user.serialize());
+      //later, add location header: TODO
     })
     .catch(err => {
       // Forward validation errors on to the client, otherwise give a 500
@@ -144,7 +146,9 @@ app.post('/api', jsonParser, (req, res, next) => {
       if (err.reason === 'ValidationError') {
         return res.status(err.code).json(err);
       }
+      console.error(err)
       res.status(500).json({ code: 500, message: 'Internal server error' });
+
     });
 });
 
@@ -159,10 +163,12 @@ app.post('/api', jsonParser, (req, res, next) => {
 // });
 
 module.exports = { app };
+//============LOG IN STUDENT===================
 
-//========GET STUDENTS ==============WORKS
+//============LOG IN STUDENT===================
+
+//========GET ALL STUDENTS ==============WORKS
 app.get('/api/students', jsonParser, (req, res, next) => {
-  //console.log(knex.raw, 'knex raw not cooked')
   knex('students')
     .select('id', 'name', 'last_name', 'email', 'password', 'teacher_id')
     .then(results => {
@@ -172,6 +178,42 @@ app.get('/api/students', jsonParser, (req, res, next) => {
       next(err)
     })
 })
+
+
+//========GET STUDENTS Filtered by Teacher_ID==============WORKS
+app.get('/api/students', jsonParser, (req, res, next) => {
+
+  knex('students')
+    .select('id', 'name', 'last_name', 'email', 'password', 'teacher_id')
+    .from('students')
+    .modify(queryBuilder => {
+      if (searchTerm) {
+        queryBuilder.where()
+      }
+    })
+    .sort('teacher_id')
+    .orderBy('teacher_id', 'desc')
+    .then(results => {
+      res.json(results)
+    })
+    .catch(err => {
+      next(err)
+    })
+})
+//knex.select('*')
+// .from('students')
+// .where({ teacher_id: req.body.teacher_id })
+//---------------
+// knex('user').insert({email: req.body.email})
+//       .then( function (result) {
+//           res.json({ success: true, message: 'ok' });     // respond back to request
+//        })
+//        .catch(err => {
+//          next(err)
+//     })
+// })
+//---------------
+
 
 //========GET STUDENT by ID ==============WORKS
 app.get('/api/students/:id', jsonParser, (req, res, next) => {
@@ -226,6 +268,52 @@ app.post('/api/students', jsonParser, (req, res, next) => {
 });
 
 //========UPDATE STUDENT ===========
+app.put('/api/students/:id', jsonParsor, (req, res, next) => {
+  const { id } = req.params;
+
+  knex('students')
+    .where({ id: req.params.id })
+    .update({ 'teacher_id': teacher_id })
+    .returning(['id', 'name', 'last_name', 'email', 'password', 'teacher_id'])
+    .then((results) => {
+      const result = results[0];
+      res
+        .location(`${req.originalUrl}/${result.id}`)
+        .status(201)
+        .json(result);
+    })
+    .catch(err => {
+      next(err);
+    });
+});
+// app.route('/students/:id')
+//   .put(function (req, res) {
+//     Contact
+//       .where('id', req.params.id)
+//       .fetch()
+//       .then(function (contact) {
+//         contact
+//           .save({
+//             name: req.body.name,
+//             last_name: req.body.last_name,
+//             email: req.body.email,
+//           })
+//           .then(function (saved) {
+//             res.json({ saved });
+//           });
+//       });
+//   });
 //=========DELETE STUDENT ==========
+app.route('/students/:id')
+
+knex
+  .delete((req, res) => {
+    Students
+      .where('id', req.params.id)
+      .del()
+      .then((destroyed) => {
+        res.json({ destroyed });
+      });
+  });
 
 module.exports = { app };

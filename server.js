@@ -1,66 +1,43 @@
-//const express = require('express');
-//const { PORT } = require('./config');
-//const dbConnect = require('./db-knex')
+'use strict';
 
-//const app = express();
-// app.use(express.json());
-// app.use(express.static('public'));
-//app.use(
-// 	cors({
-// 		origin: CLIENT_ORIGIN
-// 	})
-// );
-//========== POST NEW TEACHER ===============
+const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
+const passport = require('passport');
+const bodyParser = require('body-parser');
 
+const { PORT, CLIENT_ORIGIN } = require('./config');
+const { dbConnect } = require('./db-knex');
 
-//api - backend needs to get teachercode from db before student success register
+const app = express();
 
-
-app.listen(process.env.PORT, () => console.log(
-	`Your app is listening on port ${process.env.PORT}`));
-
-app.get('/api/cheeses', (req, res) => {
-	// return
-	res.json([
-		"Bath Blue",
-		"Barkham Blue",
-		"Buxton Blue",
-		"Cheshire Blue",
-		"Devon Blue",
-		"Dorset Blue Vinney",
-		"Dovedale",
-		"Exmoor Blue",
-		"Harbourne Blue",
-		"Lanark Blue",
-		"Lymeswold",
-		"Oxford Blue",
-		"Shropshire Blue",
-		"Stichelton",
-		"Stilton",
-		"Blue Wensleydale",
-		"Yorkshire Blue"
-	]);
-});
-
-/*
-knex
-	.select('teacher.id', 'first_name', 'last_name')
-	.from('teacher')
-	.modify(queryBuilder => {
-		if (searchTerm) {
-			queryBuilder.where('title', 'like', `%${searchTerm}%`);
-		}
+app.use(
+	morgan(process.env.NODE_ENV === 'production' ? 'common' : 'dev', {
+		skip: (req, res) => process.env.NODE_ENV === 'test'
 	})
-	.orderBy('teacher.id')
-	.then(results => {
-		console.log(JSON.stringify(results, null, 2));
+);
+app.use(
+	cors({
+		origin: CLIENT_ORIGIN
 	})
-	.catch(err => {
-		console.error(err);
-	});
-*/
+);
+app.use(bodyParser.json());
 
-	// app.get('/api/teacher/:id', (req, res) => {
-// 	const id = req.params.id;
-// 	res.json(data.find(item => item.id === Number(id)))
-// };
+
+function runServer(port = PORT) {
+	const server = app
+		.listen(port, () => {
+			console.info(`App listening on port ${server.address().port}`);
+		})
+		.on('error', err => {
+			console.error('Express failed to start');
+			console.error(err);
+		});
+}
+
+if (require.main === module) {
+	dbConnect();
+	runServer();
+}
+
+module.exports = { app };

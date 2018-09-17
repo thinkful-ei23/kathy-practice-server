@@ -1,5 +1,8 @@
 'use strict';
 
+
+// use this doc as the route for server.js doc
+
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -190,6 +193,32 @@ app.post('/api/auth/login', jsonParser, (req, es, next) => {
 
 //signup endpoint
 //front will take token
+//==============================================
+//TODO do I need these make functions?
+function makeBoardS(title, card = []) {
+  return {
+    title,
+    card
+    // id: uuid.v4(),
+
+  };
+}
+
+function makeCard(title, list = []) {
+  return {
+    title,
+    list
+    // id: uuid.v4()
+  };
+}
+
+function makeList(text) {
+  return {
+    title: '',
+    content: ''
+    // id: uuid.v4()
+  };
+}
 
 
 //===========GET ALL TEACHERS==============WORKS
@@ -404,13 +433,14 @@ app.get('/api/courses/:id', jsonParser, (req, res, next) => {
 })
 
 
-//========GET by teacherID 1 CARD-COURSE ==============
+//========GET by teacherID ALL CARD-COURSE ==============
 app.get('/api/courses/:id', jsonParser, (req, res, next) => {
   const teacher_id = req.params.id;
 
   knex.first('id', 'title', 'description', 'teacher_id')
     .from('courses')
-    .where('id', teacher_id)
+    //.filter('id', req.params.id)  TODO filter instead of whereIn
+    .whereIn('id', req.params.id)
     .returning('id', 'title')
     .then(results => {
       res.json(results)
