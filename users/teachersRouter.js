@@ -3,33 +3,31 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const { dbConnect, dbGet } = require('./db-knex');
-let knex;
+const router = express.Router();
 const bodyParser = require('body-parser');
-
-const { PORT, CLIENT_ORIGIN } = require('./config');
-//const { dbConnect } = require('./db-mongoose');
-
-const app = express();
+const { DATABASE_URL } = require('../config');
 const jsonParser = bodyParser.json();
+let knex;
 
-app.use(express.json());
-app.use(bodyParser.json());
-app.use(express.static('public'));
-app.use(
+router.use(express.json());
+router.use(bodyParser.json());
+router.use(express.static('public'));
+router.use(cors({ origin: DATABASE_URL }));
+router.use(
   morgan(process.env.NODE_ENV === 'production' ? 'common' : 'dev', {
     skip: (req, res) => process.env.NODE_ENV === 'test'
   })
 );
-app.use(cors({ origin: CLIENT_ORIGIN })
-);
-//======================
-//ENDPOINTS
-//============SIGN UP STUDENT===================
-app.post('/api/students', jsonParser, (req, res, next) => {
-  const requredFields = [name, last_name, email, password, teacher_id]
-  const missingField = requredFields.find(field => !(field in req.body));
 
+//============== ENDPOINTS ===================
+//============ SIGN UP TEACHER ===================
+//Route so user can register
+router.post('/api/teachers', jsonParser, (req, res, next) => {
+  console.log(first_name, 'I am the first name in teacherRouter')
+  const requiredFields = [first_name, last_name, email, password,]
+  const missingField = requiredFields.find(field => !(field in req.body));
+
+  //response object to notify users of error
   if (missingField) {
     return res.status(422).json({
       code: 422,
@@ -38,7 +36,8 @@ app.post('/api/students', jsonParser, (req, res, next) => {
       location: missingField
     });
   }
-  const stringFields = ['name', 'last_name', 'email', 'password', 'teacher_id'];
+  // Validate fields are strings
+  const stringFields = ['first_name', 'last_name', 'email', 'password'];
   const nonStringField = stringFields.find(
     field => field in req.body && typeof req.body[field] !== 'string'
   );
@@ -58,10 +57,12 @@ app.post('/api/students', jsonParser, (req, res, next) => {
   // trimming them and expecting the user to understand.
   // We'll silently trim the other fields, because they aren't credentials used
   // to log in, so it's less of a problem.
-  const explicityTrimmedFields = ['email', 'password', 'teacher_id'];
+  const explicityTrimmedFields = ['email', 'password'];
   const nonTrimmedField = explicityTrimmedFields.find(
     field => req.body[field].trim() !== req.body[field]
   );
+
+  //response object to notify users of error
   if (nonTrimmedField) {
     return res.status(422).json({
       code: 422,
@@ -70,8 +71,9 @@ app.post('/api/students', jsonParser, (req, res, next) => {
       location: nonTrimmedField
     });
   }
+  //validate email and password conform to length min-max constraints
   const sizedFields = {
-    teacher_id: {
+    email: {
       min: 1
     },
     password: {
@@ -92,6 +94,7 @@ app.post('/api/students', jsonParser, (req, res, next) => {
       req.body[field].trim().length > sizedFields[field].max
   );
 
+  //response object to notify users of error
   if (tooSmallField || tooLargeField) {
     return res.status(422).json({
       code: 422,
@@ -105,13 +108,14 @@ app.post('/api/students', jsonParser, (req, res, next) => {
     });
   }
 
-  let { email, password, name = '', last_name = '', teacher_id } = req.body;
+  let { email, password, first_name = '', last_name = '' } = req.body;
   // Username/email(in this project) and password come in pre-trimmed, otherwise we throw an error
   // before this
-  name = name.trim();
+  first_name = first_name.trim();
   last_name = last_name.trim();
 
-
+  //check to see if there is a user with same email already registered
+  //with a response object to notify users of error
   return User.find({ email })
     .count()
     .then(count => {
@@ -120,7 +124,7 @@ app.post('/api/students', jsonParser, (req, res, next) => {
         return Promise.reject({
           code: 422,
           reason: 'ValidationError',
-          message: 'User with the same info already exists',
+          message: 'User with the same email already exists',
           location: 'email'
         });
       }
@@ -131,12 +135,12 @@ app.post('/api/students', jsonParser, (req, res, next) => {
       return User.create({
         email,
         password: hash,
-        name,
+        first_name,
         last_name
       });
     })
     .then(user => {
-      return res.status(201). //add json JWT
+      return res.status(201).//add json JWT
         json(user.serialize());
       //later, add location header: TODO
     })
@@ -146,9 +150,7 @@ app.post('/api/students', jsonParser, (req, res, next) => {
       if (err.reason === 'ValidationError') {
         return res.status(err.code).json(err);
       }
-      console.error(err)
       res.status(500).json({ code: 500, message: 'Internal server error' });
-
     });
 });
 
@@ -162,15 +164,34 @@ app.post('/api/students', jsonParser, (req, res, next) => {
 //     .catch(err => res.status(500).json({ message: 'Internal server error' }));
 // });
 
-module.exports = { app };
-//============LOG IN STUDENT===================
 
-//============LOG IN STUDENT===================
 
-//========GET ALL STUDENTS ==============WORKS
-app.get('/api/students', jsonParser, (req, res, next) => {
-  knex('students')
-    .select('id', 'name', 'last_name', 'email', 'password', 'teacher_id')
+//============LOG IN TEACHER===================
+//POST req
+//router.login('./api/auth/login', )
+//check if already exists
+router.post('/api/auth/login', jsonParser, (req, es, next) => {
+  user.email
+  knex.
+
+    console.log("Logging in");
+  res.json("Demo");
+})
+//
+// signup -
+//   create new user and sending back to a jwt token
+
+// log finds certain user and returns token
+
+//signup endpoint
+//front will take token
+
+
+//===========GET ALL TEACHERS==============WORKS
+router.get('/api/teachers', jsonParser, (req, res, next) => {
+
+  knex('teachers')
+    .select('id', 'first_name', 'last_name', 'password', 'email')
     .then(results => {
       res.json(results)
     })
@@ -179,20 +200,13 @@ app.get('/api/students', jsonParser, (req, res, next) => {
     })
 })
 
+//===========GET TEACHER by ID==============WORKS
+router.get('/api/teachers/:id', jsonParser, (req, res, next) => {
+  const teacherId = req.params.id;
 
-//========GET STUDENTS Filtered by Teacher_ID==============WORKS
-app.get('/api/students', jsonParser, (req, res, next) => {
-
-  knex('students')
-    .select('id', 'name', 'last_name', 'email', 'password', 'teacher_id')
-    .from('students')
-    .modify(queryBuilder => {
-      if (searchTerm) {
-        queryBuilder.where()
-      }
-    })
-    .sort('teacher_id')
-    .orderBy('teacher_id', 'desc')
+  knex.first('id', 'first_name', 'last_name', 'password', 'email')
+    .from('teachers')
+    .where('id', teacherId)
     .then(results => {
       res.json(results)
     })
@@ -200,41 +214,12 @@ app.get('/api/students', jsonParser, (req, res, next) => {
       next(err)
     })
 })
-//knex.select('*')
-// .from('students')
-// .where({ teacher_id: req.body.teacher_id })
-//---------------
-// knex('user').insert({email: req.body.email})
-//       .then( function (result) {
-//           res.json({ success: true, message: 'ok' });     // respond back to request
-//        })
-//        .catch(err => {
-//          next(err)
-//     })
-// })
-//---------------
 
-
-//========GET STUDENT by ID ==============WORKS
-app.get('/api/students/:id', jsonParser, (req, res, next) => {
-  const studentId = req.params.id;
-
-  knex.first('id', 'name', 'last_name', 'password', 'email', 'teacher_id')
-    .from('students')
-    .where('id', studentId)
-
-    .then(results => {
-      res.json(results)
-    })
-    .catch(err => {
-      next(err)
-    })
-})
-//=========POST STUDENT ============WORKS
-app.post('/api/students', jsonParser, (req, res, next) => {
-
-  const { id, name, last_name, email, password, teacher_id } = req.body;
-  //console.log(req.body)
+//==========POST TEACHER=================WORKS
+router.post('/api/teachers', jsonParser, (req, res, next) => {
+  //console.log('hello dakota')
+  const { first_name, last_name, email, password } = req.body;
+  //console.log(req.body, 'line 45 in index.js')
 
   /***** Never trust users. Validate input *****/
   // if (!first_name) {
@@ -242,19 +227,18 @@ app.post('/api/students', jsonParser, (req, res, next) => {
   //   err.status = 400;
   //   return next(err);
   // }
-  const newStudent = {
-    id: id,
-    name: name,
+  const newTeacher = {
+    first_name: first_name,
     last_name: last_name,
     email: email,
     password: password,
-    teacher_id: teacher_id
+    teacher_code: 9876
   };
 
-  knex('students')
-    .insert(newStudent)
-    .into('students')
-    .returning(['id', 'name', 'last_name', 'email', 'password', 'teacher_id'])
+  knex('teachers')
+    .insert(newTeacher)
+    .into('teachers')
+    .returning(['id', 'first_name', 'last_name', 'email', 'password', 'teacher_code'])
     .then((results) => {
       const result = results[0];
       res
@@ -263,57 +247,59 @@ app.post('/api/students', jsonParser, (req, res, next) => {
         .json(result);
     })
     .catch(err => {
+      //console.log(err, 'server side error')
       next(err);
     });
 });
 
-//========UPDATE STUDENT ===========
-app.put('/api/students/:id', jsonParsor, (req, res, next) => {
-  const { id } = req.params;
+//========PUT / UPDATE TEACHER ===========
+router.put('/api/teachers/:id', jsonParser, (req, res, next) => {
+  const teacher_id = req.params.id;
+  const { first_name, last_name, email, password } = req.body;
 
-  knex('students')
-    .where({ id: req.params.id })
-    .update({ 'teacher_id': teacher_id })
-    .returning(['id', 'name', 'last_name', 'email', 'password', 'teacher_id'])
-    .then((results) => {
-      const result = results[0];
-      res
-        .location(`${req.originalUrl}/${result.id}`)
-        .status(201)
-        .json(result);
+  // /***** Never trust users. Validate input *****/
+  // if (!teacher_id) {
+  //   const err = new Error('Missing `teacher_id` in request body');
+  //   err.status = 400;
+  //   return next(err);
+  // }
+
+  const updateTeacher = {
+    first_name: first_name,
+    last_name: last_name,
+    email: email,
+    password: password,
+  };
+
+  knex('teachers')
+    .update(updateTeacher)
+    .where('id', teacher_id)
+    .returning(['id', 'first_name', 'last_name', 'email', 'password '])
+    .then(([result]) => {
+      if (result) {
+        res.json(result);
+      } else {
+        next();
+      }
     })
     .catch(err => {
       next(err);
     });
 });
-// app.route('/students/:id')
-//   .put(function (req, res) {
-//     Contact
-//       .where('id', req.params.id)
-//       .fetch()
-//       .then(function (contact) {
-//         contact
-//           .save({
-//             name: req.body.name,
-//             last_name: req.body.last_name,
-//             email: req.body.email,
-//           })
-//           .then(function (saved) {
-//             res.json({ saved });
-//           });
-//       });
-//   });
-//=========DELETE STUDENT ==========
-app.route('/students/:id')
 
-knex
-  .delete((req, res) => {
-    Students
-      .where('id', req.params.id)
-      .del()
-      .then((destroyed) => {
-        res.json({ destroyed });
-      });
-  });
 
-module.exports = { app };
+//=========DELETE TEACHER ==========
+router.delete('/api/teachers/:id', (req, res, next) => {
+  knex
+    .where('id', req.params.id)
+    .from('teachers')
+    .del()
+    .then(() => {
+      res.status(204).end();
+    })
+    .catch(err => {
+      next(err);
+    });
+});
+
+module.exports = { router };

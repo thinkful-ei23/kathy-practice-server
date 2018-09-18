@@ -3,7 +3,7 @@
 module.exports = {
 	development: {
 		client: 'pg',
-		connection: process.env.DATABASE_URL || 'postgres://localhost/practie-app',
+		connection: process.env.DATABASE_URL || 'postgres://localhost/practice-app',
 		debug: true, // http://knexjs.org/#Installation-debug
 		pool: { min: 1, max: 2 }
 	},
