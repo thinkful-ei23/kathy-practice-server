@@ -35,20 +35,16 @@ app.use(function (req, res, next) {
 	}
 	next();
 });
-//console.log(localStrategy, 'local in server')
+//TODO console.log(localStrategy, 'local in server')
 passport.use(localStrategy);
 passport.use(jwtStrategy);
 
-console.log(app.use, 'app.use inside server')
-//console.log(Router.use, 'Router.use inside server')
+// TODOconsole.log(app.use, 'app.use inside server')
 
 app.use('/api/teachers/', teachersRouter)
 app.use('/api/students/', studentsRouter)
 app.use('/api/courses/', coursesRouter)
 app.use('/api/auth/login/', authRouter)
-// app.use("/api", require('./api/teachers'));
-// app.use('/teachers', authMiddleware, teachersRouter);
-
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
@@ -69,22 +65,16 @@ app.use('*', (req, res) => {
 let server;
 
 function runServer(databaseUrl, port = PORT) {
-
 	return new Promise((resolve, reject) => {
-		// knex.connect(databaseUrl, err => {
-		// 	if (err) {
-		// 		return reject(err);
-		// 	}
 		server = app.listen(port, () => {
-			console.log(`Your app is listening on port ${port}`);
+			//TODO console.log(`Your app is listening on port ${port}`);
 			resolve();
 		})
 			.on('error', err => {
-				// knex.disconnect();
+
 				reject(err);
 			});
 	});
-	// });
 }
 function closeServer() {
 	return knex.disconnect().then(() => {
@@ -107,17 +97,3 @@ if (require.main === module) {
 }
 
 module.exports = { app, runServer, closeServer };
-
-/*
-
-function runServer(port = PORT) {
-	const server = app
-		.listen(port, () => {
-			console.info(`App listening on port ${server.address().port}`);
-		})
-		.on('error', err => {
-			console.error('Express failed to start');
-			console.error(err);
-		});
-}
-*/

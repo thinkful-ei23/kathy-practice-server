@@ -9,7 +9,7 @@ const { DATABASE_URL } = require('../config');
 const jsonParser = bodyParser.json();
 let knex;
 
-console.log(router.use, 'router.use in beginning of teachersRouter doc')
+// TODO console.log(router.use, 'router.use in beginning of teachersRouter doc')
 router.use(express.json());
 router.use(bodyParser.json());
 router.use(express.static('public'));
