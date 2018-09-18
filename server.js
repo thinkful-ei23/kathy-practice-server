@@ -1,17 +1,16 @@
 'use strict';
 
-//require('dotenv')./config(); //TODO ES6 syntax needed
-const dotenv = require('./config');
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const passport = require('passport');
 const { dbConnect, dbGet } = require('./db-knex');
-let knex;
+const knex = require('knex');
 
-const { router: teachersRouter, studentsRouter, coursesRouter } = require('./users/index');
-const { router: localStrategy, authRouter, jwtStrategy } = require('./auth/index');
-
+const { teachersRouter, studentsRouter, coursesRouter } = require('./users/index');
+const { authRouter } = require('./auth/index');
+const { localStrategy, jwtStrategy } = require('./auth/index');
 const bodyParser = require('body-parser');
 
 const { PORT, DATABASE_URL } = require('./config');
@@ -36,14 +35,20 @@ app.use(function (req, res, next) {
 	}
 	next();
 });
-
+//console.log(localStrategy, 'local in server')
 passport.use(localStrategy);
 passport.use(jwtStrategy);
+
+console.log(app.use, 'app.use inside server')
+//console.log(Router.use, 'Router.use inside server')
 
 app.use('/api/teachers/', teachersRouter)
 app.use('/api/students/', studentsRouter)
 app.use('/api/courses/', coursesRouter)
 app.use('/api/auth/login/', authRouter)
+// app.use("/api", require('./api/teachers'));
+// app.use('/teachers', authMiddleware, teachersRouter);
+
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
@@ -66,20 +71,20 @@ let server;
 function runServer(databaseUrl, port = PORT) {
 
 	return new Promise((resolve, reject) => {
-		knex.connect(databaseUrl, err => {
-			if (err) {
-				return reject(err);
-			}
-			server = app.listen(port, () => {
-				console.log(`Your app is listening on port ${port}`);
-				resolve();
-			})
-				.on('error', err => {
-					knex.disconnect();
-					reject(err);
-				});
-		});
+		// knex.connect(databaseUrl, err => {
+		// 	if (err) {
+		// 		return reject(err);
+		// 	}
+		server = app.listen(port, () => {
+			console.log(`Your app is listening on port ${port}`);
+			resolve();
+		})
+			.on('error', err => {
+				// knex.disconnect();
+				reject(err);
+			});
 	});
+	// });
 }
 function closeServer() {
 	return knex.disconnect().then(() => {
@@ -97,7 +102,7 @@ function closeServer() {
 
 if (require.main === module) {
 	dbConnect();
-	knex = dbGet();
+	// dbGet();
 	runServer();
 }
 

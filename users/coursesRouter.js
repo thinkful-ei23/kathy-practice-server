@@ -177,4 +177,4 @@ if (require.main === module) {
   runServer();
 }
 
-module.exports = { router };
+module.exports = { coursesRouter: router };

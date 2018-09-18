@@ -3,7 +3,7 @@ const { Strategy: LocalStrategy } = require('passport-local');
 
 // Assigns the Strategy export to the name JwtStrategy using object destructuring
 // https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Assigning_to_new_variable_names
-const { Strategy: jwtStrategy, ExtractJwt } = require('passport-jwt');
+const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const { JWT_SECRET } = require('../config');
 
 const localStrategy = new LocalStrategy((email, password, callback) => {
@@ -38,7 +38,7 @@ const localStrategy = new LocalStrategy((email, password, callback) => {
 		});
 });
 
-const jwtStrategy = new jwtStrategy(
+const jwtStrategy = new JwtStrategy(
 	{
 		secretOrKey: JWT_SECRET,
 		// Look for the JWT as a Bearer auth header

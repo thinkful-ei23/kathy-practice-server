@@ -355,4 +355,4 @@ router.put('/api/students/:id', jsonParser, (req, res, next) => {
 //         });
 //     });
 // }
-module.exports = { router };
+module.exports = { studentsRouter: router };

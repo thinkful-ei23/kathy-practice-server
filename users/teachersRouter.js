@@ -9,6 +9,7 @@ const { DATABASE_URL } = require('../config');
 const jsonParser = bodyParser.json();
 let knex;
 
+console.log(router.use, 'router.use in beginning of teachersRouter doc')
 router.use(express.json());
 router.use(bodyParser.json());
 router.use(express.static('public'));
@@ -170,12 +171,13 @@ router.post('/api/teachers', jsonParser, (req, res, next) => {
 //POST req
 //router.login('./api/auth/login', )
 //check if already exists
-router.post('/api/auth/login', jsonParser, (req, es, next) => {
+router.post('/api/auth/login', jsonParser, (req, res, next) => {
   user.email
   knex.
 
     console.log("Logging in");
   res.json("Demo");
+
 })
 //
 // signup -
@@ -302,4 +304,4 @@ router.delete('/api/teachers/:id', (req, res, next) => {
     });
 });
 
-module.exports = { router };
+module.exports = { teachersRouter: router };
