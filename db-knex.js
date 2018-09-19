@@ -7,21 +7,18 @@ const { DATABASE_URL } = require('./config');
 let knex = null;
 
 function dbConnect(url = DATABASE_URL) {
-  console.log(url, 'URL')
+  // TODO console.log(url, 'URL')
   knex = createKnex({
     client: 'pg',
     connection: url
   });
 }
-
 function dbDisconnect() {
   return knex.destroy();
 }
-
 function dbGet() {
   return knex;
 }
-
 module.exports = {
   dbConnect,
   dbDisconnect,
