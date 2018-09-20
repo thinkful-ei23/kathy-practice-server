@@ -13,7 +13,7 @@ CREATE TABLE teachers (
 	last_name text NOT NULL,
 	email text NOT NULL,
 	password text NOT NULL,
-	teacher_code int NOT NULL
+	code int NOT NULL
 );
 
 CREATE TABLE students (
@@ -22,7 +22,7 @@ CREATE TABLE students (
 	last_name text ,
 	email text NOT NULL,
 	password text NOT NULL,
-	teacher_id int references teachers ON DELETE CASCADE
+	teacher_code int references teachers ON DELETE CASCADE
 );
 
 CREATE TABLE courses (
@@ -61,14 +61,14 @@ CREATE TABLE courses (
 -- teacher code = 1111
 
 
-INSERT INTO teachers (id, first_name, last_name, email, password, teacher_code) VALUES
+INSERT INTO teachers (id, first_name, last_name, email, password, code) VALUES
 (1001, 'Amanda', 'LeBoeuf', 'photos@cheese.com', 0987654321, 1111),
 (1002, 'Kate', 'Hood', 'hook@yarn.com', 0987654321, 1112),
 (1003, 'Jason', 'Hood', 'anchor@away.com', 0987654321, 1113),
 (1004, 'Dakota', 'Hood', 'buddy@cutie.net', 0987654321, 1114),
 (1005, 'Ray', 'LeBoeuf', 'busy@field.edu', 0987654321, 1115);
 
-INSERT INTO students (id, name, last_name, email, password, teacher_id) VALUES
+INSERT INTO students (id, name, last_name, email, password, teacher_code) VALUES
 (501, 'Amanda', 'LeBoeuf', 'photos@cheese.com', 0987654321, 1001),
 (502, 'Kate', 'Hood', 'hook@yarn.com', 0987654321, 1002),
 (503, 'Jason', 'Hood', 'anchor@away.com', 0987654321, 1003),

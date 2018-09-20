@@ -4,7 +4,7 @@ require('dotenv').config();
 const express = require('express');
 const { dbConnect, dbGet } = require('./db-knex');
 let knex;
-console.log(knex, "trying to see knex in server.js, top line-7ish here too!")
+// console.log(knex, "trying to see knex in server.js, top line-7ish here too!")
 const cors = require('cors');
 const morgan = require('morgan');
 const passport = require('passport');
@@ -62,25 +62,18 @@ const localAuth = passport.authenticate('local', { session: false });
 
 //============== ENDPOINTS ===================
 // api/teachers
-//============ SIGN UP TEACHER ===================
+//============ SIGN UP TEACHER ===================WORKS with console.logs intact
 //Route so user can register
 app.post('/api/teachers', (req, res, next) => {
 
-	// console.log('************************I am the first name in signup-teacher endpoint, server.js')// TODO
+	let { name_signUpT, last_name_signUpT, email_signUpT, password_signUpT } = req.body
 
-	let { first_name_signUpT, last_name_signUpT, email_signUpT, password_signUpT } = req.body
-	// console.log('************************I am the 1.5 name in signup-teacher endpoint, server.js', req.body)// TODO
-
-	const requiredFields = ['first_name_signUpT', 'last_name_signUpT', 'email_signUpT', 'password_signUpT'];
-	// console.log('************************1.75 in signup T endpoint', requiredFields)
+	const requiredFields = ['name_signUpT', 'last_name_signUpT', 'email_signUpT', 'password_signUpT'];
 	const missingField = requiredFields.find(field => !(field in req.body));
-	// console.log('************************I am the 2nd name in signup-teacher endpoint, server.js', missingField)// TODO
 
 	//response object to notify users of error
 	if (missingField) {
-		// console.log('****************************I am the 3rd name in signup-teacher endpoint, server.js', missingField)// TODO
-
-		return res.status(418).json({
+		return res.status(422).json({
 			code: 422,
 			reason: 'ValidationError',
 			message: 'Missing field',
@@ -88,15 +81,13 @@ app.post('/api/teachers', (req, res, next) => {
 		});
 	}
 	// Validate fields are strings
-	const stringFields = ['first_name_signUpT', 'last_name_signUpT', 'email_signUpT', 'password_signUpT'];
+	const stringFields = ['name_signUpT', 'last_name_signUpT', 'email_signUpT', 'password_signUpT'];
 	const nonStringField = stringFields.find(
-
 		field => field in req.body && typeof req.body[field] !== 'string'
 	);
 	if (nonStringField) {
-		// console.log('I am the 4th name in signup-teacher endpoint, server.js') // TODO
 
-		return res.status(418).json({
+		return res.status(422).json({
 			code: 422,
 			reason: 'ValidationError',
 			message: 'Incorrect field type: expected string',
@@ -105,8 +96,6 @@ app.post('/api/teachers', (req, res, next) => {
 	}
 	const explicityTrimmedFields = ['email_signUpT', 'password_signUpT'];
 	const nonTrimmedField = explicityTrimmedFields.find(
-		// console.log('----------------------5th trimmed fields in server.js sign up teacher endpoint', nonTrimmedField), // TODO
-
 		field => req.body[field].trim() !== req.body[field]
 
 	);
@@ -152,17 +141,12 @@ app.post('/api/teachers', (req, res, next) => {
 			location: tooSmallField || tooLargeField
 		});
 	}
-	// let { email_signUpT, password_signUpT, first_name_signUpT = '', last_name_signUpT = '' } = req.body;
-	// Username/email(in this project) and password come in pre-trimmed, otherwise we throw an error
-	// before this
-	console.log('66666666666666666666666 line 158', first_name_signUpT.trim())
-	first_name_signUpT = first_name_signUpT.trim();
+
+	name_signUpT = name_signUpT.trim();
 	last_name_signUpT = last_name_signUpT.trim();
 
-	//check to see if there is a user with same email already registered
-	//with a response object to notify users of error
 	const newTeacher = {
-		first_name: first_name_signUpT,
+		name: name_signUpT,
 		last_name: last_name_signUpT,
 		email: email_signUpT,
 		password: password_signUpT,
@@ -170,7 +154,7 @@ app.post('/api/teachers', (req, res, next) => {
 	};
 	knex.insert(newTeacher)
 		.into('teachers')
-		.returning(['id', 'first_name', 'last_name'])
+		.returning(['id', 'name', 'last_name'])
 		.then(results => {
 			const result = results[0];
 			res
@@ -184,15 +168,6 @@ app.post('/api/teachers', (req, res, next) => {
 	//TODO subscripting  [] const results = [result]  const result = results[0];
 });
 
-// Never expose all your users like below in a prod application
-// we're just doing this so we have a quick way to see
-// if we're creating users. keep in mind, you can also
-// verify this in the Mongo shell.
-// app.get('/', (req, res) => {
-//   return User.find()
-//     .then(users => res.json(users.map(user => user.serialize())))
-//     .catch(err => res.status(500).json({ message: 'Internal server error' }));
-// });
 //============LOG IN TEACHER===================
 app.post('/api/auth/login', localAuth, (req, res, next) => {
 	const email_signUpT = req.body.email;
@@ -215,7 +190,113 @@ app.post('/api/auth/login', localAuth, (req, res, next) => {
 			next(err)
 		})
 });
+//=================================
+// api/students
+//============SIGN UP STUDENT===================
 
+app.post('/api/students', (req, res, next) => {
+
+	let { name_signUpS, last_name_signUpS, email_signUpS, password_signUpS, teacher_code_signUpS } = req.body
+
+	const requiredFields = ['name_signUpS', 'last_name_signUpS', 'email_signUpS', 'password_signUpS', 'teacher_code_signUpS'];
+	const missingField = requiredFields.find(field => !(field in req.body));
+
+	if (missingField) {
+		// console.log(missingField, '------------------------------')
+		return res.status(422).json({
+			code: 422,
+			reason: 'ValidationError',
+			message: 'Missing field',
+			location: missingField
+		});
+	}
+	const stringFields = ['name_signUpS', 'last_name_signUpS', 'email_signUpS', 'password_signUpS', 'teacher_code_signUpS'];
+	const nonStringField = stringFields.find(
+		field => field in req.body && typeof req.body[field] !== 'string'
+	);
+	if (nonStringField) {
+		return res.status(422).json({
+			code: 422,
+			reason: 'ValidationError',
+			message: 'Incorrect field type: expected string',
+			location: nonStringField
+		});
+	}
+
+	const explicityTrimmedFields = ['email_signUpS', 'password_signUpS'];
+	const nonTrimmedField = explicityTrimmedFields.find(
+		field => req.body[field].trim() !== req.body[field]
+	);
+	if (nonTrimmedField) {
+		return res.status(422).json({
+			code: 422,
+			reason: 'ValidationError',
+			message: 'Cannot start or end with whitespace',
+			location: nonTrimmedField
+		});
+	}
+	const sizedFields = {
+		email_signUpS: {
+			min: 1
+		},
+		password_signUpS: {
+			min: 6,
+			// bcrypt truncates after 72 characters, so let's not give the illusion
+			// of security by storing extra (unused) info
+			max: 72
+		}
+	};
+	const tooSmallField = Object.keys(sizedFields).find(
+		field =>
+			'min' in sizedFields[field] &&
+			req.body[field].trim().length < sizedFields[field].min
+	);
+	const tooLargeField = Object.keys(sizedFields).find(
+		field =>
+			'max' in sizedFields[field] &&
+			req.body[field].trim().length > sizedFields[field].max
+	);
+
+	if (tooSmallField || tooLargeField) {
+		return res.status(422).json({
+			code: 422,
+			reason: 'ValidationError',
+			message: tooSmallField
+				? `Must be at least ${sizedFields[tooSmallField]
+					.min} characters long`
+				: `Must be at most ${sizedFields[tooLargeField]
+					.max} characters long`,
+			location: tooSmallField || tooLargeField
+		});
+	}
+	// Username_signUpS/email_signUpS(in this project) and password_signUpS come in pre-trimmed, otherwise we throw an error
+	// before this
+	name_signUpS = name_signUpS.trim();
+	last_name_signUpS = last_name_signUpS.trim();
+	teacher_code_signUpS = teacher_code_signUpS.trim();
+
+	console.log("--------------------------I'm right here!", teacher_code_signUpS)
+	const newStudent = {
+		name: name_signUpS,
+		last_name: last_name_signUpS,
+		email: email_signUpS,
+		password: password_signUpS,
+		teacher_code: teacher_code_signUpS
+	};
+	knex.insert(newStudent)
+		.into('students')
+		.returning(['id', 'name', 'last_name'])
+		.then(results => {
+			const result = results[0];
+			res
+				.location('${req.originalUrl}/${result.id}')
+				.status(201)
+				.json(result);
+		})
+		.catch(err => {
+			next(err);
+		});
+});
 //=======================
 function runServer(databaseUrl, port = PORT) {
 	return new Promise((resolve, reject) => {
