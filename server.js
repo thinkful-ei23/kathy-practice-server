@@ -66,19 +66,19 @@ const localAuth = passport.authenticate('local', { session: false });
 //Route so user can register
 app.post('/api/teachers', (req, res, next) => {
 
-	console.log('************************I am the first name in signup-teacher endpoint, server.js')// TODO
+	// console.log('************************I am the first name in signup-teacher endpoint, server.js')// TODO
 
-	const { first_name_signUpT, last_name_signUpT, email_signUpT, password_signUpT } = req.body
-	console.log('************************I am the 1.5 name in signup-teacher endpoint, server.js', req.body)// TODO
+	let { first_name_signUpT, last_name_signUpT, email_signUpT, password_signUpT } = req.body
+	// console.log('************************I am the 1.5 name in signup-teacher endpoint, server.js', req.body)// TODO
 
-	const requiredFields = [first_name_signUpT, last_name_signUpT, email_signUpT, password_signUpT];
-	console.log('************************1.75 in signup T endpoint', requiredFields)
+	const requiredFields = ['first_name_signUpT', 'last_name_signUpT', 'email_signUpT', 'password_signUpT'];
+	// console.log('************************1.75 in signup T endpoint', requiredFields)
 	const missingField = requiredFields.find(field => !(field in req.body));
-	console.log('************************I am the 2nd name in signup-teacher endpoint, server.js', missingField)// TODO
+	// console.log('************************I am the 2nd name in signup-teacher endpoint, server.js', missingField)// TODO
 
 	//response object to notify users of error
 	if (missingField) {
-		console.log('****************************I am the 3rd name in signup-teacher endpoint, server.js', missingField)// TODO
+		// console.log('****************************I am the 3rd name in signup-teacher endpoint, server.js', missingField)// TODO
 
 		return res.status(418).json({
 			code: 422,
@@ -90,12 +90,11 @@ app.post('/api/teachers', (req, res, next) => {
 	// Validate fields are strings
 	const stringFields = ['first_name_signUpT', 'last_name_signUpT', 'email_signUpT', 'password_signUpT'];
 	const nonStringField = stringFields.find(
-		console.log('***************************I am the 4th name in signup-teacher endpoint, server.js'), // TODO
 
 		field => field in req.body && typeof req.body[field] !== 'string'
 	);
 	if (nonStringField) {
-		console.log('I am the 4th name in signup-teacher endpoint, server.js') // TODO
+		// console.log('I am the 4th name in signup-teacher endpoint, server.js') // TODO
 
 		return res.status(418).json({
 			code: 422,
@@ -106,8 +105,10 @@ app.post('/api/teachers', (req, res, next) => {
 	}
 	const explicityTrimmedFields = ['email_signUpT', 'password_signUpT'];
 	const nonTrimmedField = explicityTrimmedFields.find(
-		console.log('5th trimmed fields in server.js sign up teacher endpoint'), // TODO
+		// console.log('----------------------5th trimmed fields in server.js sign up teacher endpoint', nonTrimmedField), // TODO
+
 		field => req.body[field].trim() !== req.body[field]
+
 	);
 	//response object to notify users of error
 	if (nonTrimmedField) {
@@ -154,47 +155,33 @@ app.post('/api/teachers', (req, res, next) => {
 	// let { email_signUpT, password_signUpT, first_name_signUpT = '', last_name_signUpT = '' } = req.body;
 	// Username/email(in this project) and password come in pre-trimmed, otherwise we throw an error
 	// before this
+	console.log('66666666666666666666666 line 158', first_name_signUpT.trim())
 	first_name_signUpT = first_name_signUpT.trim();
 	last_name_signUpT = last_name_signUpT.trim();
 
 	//check to see if there is a user with same email already registered
 	//with a response object to notify users of error
-	return User.find({ email_signUpT })
-		.count()
-		.then(count => {
-			if (count > 0) {
-				// There is an existing user with the same username
-				return Promise.reject({
-					code: 422,
-					reason: 'ValidationError',
-					message: 'User with the same email already exists',
-					location: 'email'
-				});
-			}
-			// If there is no existing user, hash the password
-			return User.hashPassword(password_signUpT);
-		})
-		.then(hash => {
-			return User.create({
-				email_signUpT,
-				password_signUpT: hash,
-				first_name_signUpT,
-				last_name_signUpT
-			});
-		})
-		.then(user => {
-			return res.status(201).//add json JWT
-				json(user.serialize());
-			//later, add location header: TODO
+	const newTeacher = {
+		first_name: first_name_signUpT,
+		last_name: last_name_signUpT,
+		email: email_signUpT,
+		password: password_signUpT,
+		teacher_code: 1234
+	};
+	knex.insert(newTeacher)
+		.into('teachers')
+		.returning(['id', 'first_name', 'last_name'])
+		.then(results => {
+			const result = results[0];
+			res
+				.location('${req.originalUrl}/${result.id}')
+				.status(201)
+				.json(result);
 		})
 		.catch(err => {
-			// Forward validation errors on to the client, otherwise give a 500
-			// error because something unexpected has happened
-			if (err.reason === 'ValidationError') {
-				return res.status(err.code).json(err);
-			}
-			res.status(500).json({ code: 500, message: 'Internal server error' });
+			next(err);
 		});
+	//TODO subscripting  [] const results = [result]  const result = results[0];
 });
 
 // Never expose all your users like below in a prod application
