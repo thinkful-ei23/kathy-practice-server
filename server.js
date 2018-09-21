@@ -66,29 +66,33 @@ const localAuth = passport.authenticate('local', { session: false });
 //Route so user can register
 app.post('/api/teachers', (req, res, next) => {
 
-	let { name_signUpT, last_name_signUpT, email_signUpT, password_signUpT } = req.body
+	let { first_name_signUpT, last_name_signUpT, email_signUpT, password_signUpT } = req.body
 
-	const requiredFields = ['name_signUpT', 'last_name_signUpT', 'email_signUpT', 'password_signUpT'];
+	const requiredFields = ['first_name_signUpT', 'last_name_signUpT', 'email_signUpT', 'password_signUpT'];
 	const missingField = requiredFields.find(field => !(field in req.body));
 
 	//response object to notify users of error
 	if (missingField) {
+		console.log("--------------------------I'm right here!", missingField)
+
 		return res.status(422).json({
-			code: 422,
+			id: 422,
 			reason: 'ValidationError',
 			message: 'Missing field',
 			location: missingField
 		});
 	}
 	// Validate fields are strings
-	const stringFields = ['name_signUpT', 'last_name_signUpT', 'email_signUpT', 'password_signUpT'];
+	const stringFields = ['first_name_signUpT', 'last_name_signUpT', 'email_signUpT', 'password_signUpT'];
+	console.log("--------------------------I'm right her2!", stringFields)
+
 	const nonStringField = stringFields.find(
 		field => field in req.body && typeof req.body[field] !== 'string'
 	);
 	if (nonStringField) {
 
 		return res.status(422).json({
-			code: 422,
+			id: 422,
 			reason: 'ValidationError',
 			message: 'Incorrect field type: expected string',
 			location: nonStringField
@@ -102,7 +106,7 @@ app.post('/api/teachers', (req, res, next) => {
 	//response object to notify users of error
 	if (nonTrimmedField) {
 		return res.status(422).json({
-			code: 422,
+			id: 422,
 			reason: 'ValidationError',
 			message: 'Cannot start or end with whitespace',
 			location: nonTrimmedField
@@ -131,7 +135,7 @@ app.post('/api/teachers', (req, res, next) => {
 	//response object to notify users of error
 	if (tooSmallField || tooLargeField) {
 		return res.status(422).json({
-			code: 422,
+			id: 422,
 			reason: 'ValidationError',
 			message: tooSmallField
 				? `Must be at least ${sizedFields[tooSmallField]
@@ -142,19 +146,19 @@ app.post('/api/teachers', (req, res, next) => {
 		});
 	}
 
-	name_signUpT = name_signUpT.trim();
+	first_name_signUpT = first_name_signUpT.trim();
 	last_name_signUpT = last_name_signUpT.trim();
 
 	const newTeacher = {
-		name: name_signUpT,
+		first_name: first_name_signUpT,
 		last_name: last_name_signUpT,
 		email: email_signUpT,
 		password: password_signUpT,
-		teacher_code: 1234
+		teacher_id: 1234
 	};
 	knex.insert(newTeacher)
 		.into('teachers')
-		.returning(['id', 'name', 'last_name'])
+		.returning(['id', 'first_name', 'last_name'])
 		.then(results => {
 			const result = results[0];
 			res
@@ -192,31 +196,32 @@ app.post('/api/auth/login', localAuth, (req, res, next) => {
 });
 //=================================
 // api/students
-//============SIGN UP STUDENT===================
+//============SIGN UP STUDENT===================WORKS
 
 app.post('/api/students', (req, res, next) => {
+	console.log("--------------------------I'm right here!", teacher_id_signUpS)
 
-	let { name_signUpS, last_name_signUpS, email_signUpS, password_signUpS, teacher_code_signUpS } = req.body
+	let { name_signUpS, last_name_signUpS, email_signUpS, password_signUpS, teacher_id_signUpS } = req.body
 
-	const requiredFields = ['name_signUpS', 'last_name_signUpS', 'email_signUpS', 'password_signUpS', 'teacher_code_signUpS'];
+	const requiredFields = ['name_signUpS', 'last_name_signUpS', 'email_signUpS', 'password_signUpS', 'teacher_id_signUpS'];
 	const missingField = requiredFields.find(field => !(field in req.body));
 
 	if (missingField) {
-		// console.log(missingField, '------------------------------')
+		console.log(missingField, '------------------------------')
 		return res.status(422).json({
-			code: 422,
+			id: 422,
 			reason: 'ValidationError',
 			message: 'Missing field',
 			location: missingField
 		});
 	}
-	const stringFields = ['name_signUpS', 'last_name_signUpS', 'email_signUpS', 'password_signUpS', 'teacher_code_signUpS'];
+	const stringFields = ['name_signUpS', 'last_name_signUpS', 'email_signUpS', 'password_signUpS', 'teacher_id_signUpS'];
 	const nonStringField = stringFields.find(
 		field => field in req.body && typeof req.body[field] !== 'string'
 	);
 	if (nonStringField) {
 		return res.status(422).json({
-			code: 422,
+			id: 422,
 			reason: 'ValidationError',
 			message: 'Incorrect field type: expected string',
 			location: nonStringField
@@ -224,12 +229,16 @@ app.post('/api/students', (req, res, next) => {
 	}
 
 	const explicityTrimmedFields = ['email_signUpS', 'password_signUpS'];
+	console.log("--------------------------I'm right here!", teacher_id_signUpS)
+
 	const nonTrimmedField = explicityTrimmedFields.find(
+
 		field => req.body[field].trim() !== req.body[field]
+
 	);
 	if (nonTrimmedField) {
 		return res.status(422).json({
-			code: 422,
+			id: 422,
 			reason: 'ValidationError',
 			message: 'Cannot start or end with whitespace',
 			location: nonTrimmedField
@@ -259,7 +268,7 @@ app.post('/api/students', (req, res, next) => {
 
 	if (tooSmallField || tooLargeField) {
 		return res.status(422).json({
-			code: 422,
+			id: 422,
 			reason: 'ValidationError',
 			message: tooSmallField
 				? `Must be at least ${sizedFields[tooSmallField]
@@ -273,15 +282,15 @@ app.post('/api/students', (req, res, next) => {
 	// before this
 	name_signUpS = name_signUpS.trim();
 	last_name_signUpS = last_name_signUpS.trim();
-	teacher_code_signUpS = teacher_code_signUpS.trim();
+	teacher_id_signUpS = teacher_id_signUpS.trim();
 
-	console.log("--------------------------I'm right here!", teacher_code_signUpS)
+	console.log("--------------------------I'm right here!", teacher_id_signUpS)
 	const newStudent = {
 		name: name_signUpS,
 		last_name: last_name_signUpS,
 		email: email_signUpS,
 		password: password_signUpS,
-		teacher_code: teacher_code_signUpS
+		teacher_id: teacher_id_signUpS
 	};
 	knex.insert(newStudent)
 		.into('students')
