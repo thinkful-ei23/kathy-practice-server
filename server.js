@@ -66,24 +66,23 @@ const localAuth = passport.authenticate('local', { session: false });
 //Route so user can register
 app.post('/api/teachers', (req, res, next) => {
 
-	let { first_name_signUpT, last_name_signUpT, email_signUpT, password_signUpT } = req.body
+	let { first_name_signUpT, last_name_signUpT, email_signUpT, teacher_id_signUpS } = req.body
 
-	const requiredFields = ['first_name_signUpT', 'last_name_signUpT', 'email_signUpT', 'password_signUpT'];
+	const requiredFields = ['first_name_signUpT', 'last_name_signUpT', 'email_signUpT', 'teacher_id_signUpS'];
 	const missingField = requiredFields.find(field => !(field in req.body));
-
+	console.log("--------------------------I'm right here!", teacher_id_signUpS)
 	//response object to notify users of error
 	if (missingField) {
 		console.log("--------------------------I'm right here!", missingField)
 
-		return res.status(422).json({
-			id: 422,
+		return res.status(418).json({
 			reason: 'ValidationError',
 			message: 'Missing field',
 			location: missingField
 		});
 	}
 	// Validate fields are strings
-	const stringFields = ['first_name_signUpT', 'last_name_signUpT', 'email_signUpT', 'password_signUpT'];
+	const stringFields = ['first_name_signUpT', 'last_name_signUpT', 'email_signUpT', 'teacher_id_signUpS'];
 	console.log("--------------------------I'm right her2!", stringFields)
 
 	const nonStringField = stringFields.find(
@@ -98,7 +97,7 @@ app.post('/api/teachers', (req, res, next) => {
 			location: nonStringField
 		});
 	}
-	const explicityTrimmedFields = ['email_signUpT', 'password_signUpT'];
+	const explicityTrimmedFields = ['email_signUpT', 'teacher_id_signUpS'];
 	const nonTrimmedField = explicityTrimmedFields.find(
 		field => req.body[field].trim() !== req.body[field]
 
@@ -117,7 +116,7 @@ app.post('/api/teachers', (req, res, next) => {
 		email_signUpT: {
 			min: 1
 		},
-		password_signUpT: {
+		teacher_id_signUpS: {
 			min: 6,
 			max: 72
 		}
@@ -153,7 +152,7 @@ app.post('/api/teachers', (req, res, next) => {
 		first_name: first_name_signUpT,
 		last_name: last_name_signUpT,
 		email: email_signUpT,
-		password: password_signUpT,
+		password: teacher_id_signUpS,
 		teacher_id: 1234
 	};
 	knex.insert(newTeacher)
@@ -175,7 +174,7 @@ app.post('/api/teachers', (req, res, next) => {
 //============LOG IN TEACHER===================
 app.post('/api/auth/login', localAuth, (req, res, next) => {
 	const email_signUpT = req.body.email;
-	const password_signUpT = req.body.password;
+	const teacher_id_signUpS = req.body.password;
 	knex
 		.select('id', 'password')
 		.from('teachers')
@@ -199,10 +198,10 @@ app.post('/api/auth/login', localAuth, (req, res, next) => {
 //============SIGN UP STUDENT===================WORKS
 
 app.post('/api/students', (req, res, next) => {
-	console.log("--------------------------I'm right here!", teacher_id_signUpS)
+
 
 	let { name_signUpS, last_name_signUpS, email_signUpS, password_signUpS, teacher_id_signUpS } = req.body
-
+	console.log("--------------------------I'm right here!", teacher_id_signUpS)
 	const requiredFields = ['name_signUpS', 'last_name_signUpS', 'email_signUpS', 'password_signUpS', 'teacher_id_signUpS'];
 	const missingField = requiredFields.find(field => !(field in req.body));
 
