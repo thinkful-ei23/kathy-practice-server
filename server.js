@@ -66,14 +66,14 @@ const localAuth = passport.authenticate('local', { session: false });
 //Route so user can register
 app.post('/api/teachers', (req, res, next) => {
 
-	let { first_name_signUpT, last_name_signUpT, email_signUpT, teacher_id_signUpS } = req.body
+	let { first_name_signUpT, last_name_signUpT, email_signUpT, password_signUpT } = req.body
 
-	const requiredFields = ['first_name_signUpT', 'last_name_signUpT', 'email_signUpT', 'teacher_id_signUpS'];
+	const requiredFields = ['first_name_signUpT', 'last_name_signUpT', 'email_signUpT', 'password_signUpT'];
 	const missingField = requiredFields.find(field => !(field in req.body));
-	console.log("--------------------------I'm right here!", teacher_id_signUpS)
+	console.log("--------------------------I'm right here in missing and!", password_signUpT)
 	//response object to notify users of error
 	if (missingField) {
-		console.log("--------------------------I'm right here!", missingField)
+		console.log("--------------------------I'm right here in missing field!", missingField)
 
 		return res.status(418).json({
 			reason: 'ValidationError',
@@ -82,7 +82,7 @@ app.post('/api/teachers', (req, res, next) => {
 		});
 	}
 	// Validate fields are strings
-	const stringFields = ['first_name_signUpT', 'last_name_signUpT', 'email_signUpT', 'teacher_id_signUpS'];
+	const stringFields = ['first_name_signUpT', 'last_name_signUpT', 'email_signUpT', ' password_signUpT'];
 	console.log("--------------------------I'm right her2!", stringFields)
 
 	const nonStringField = stringFields.find(
@@ -97,7 +97,7 @@ app.post('/api/teachers', (req, res, next) => {
 			location: nonStringField
 		});
 	}
-	const explicityTrimmedFields = ['email_signUpT', 'teacher_id_signUpS'];
+	const explicityTrimmedFields = ['email_signUpT', 'password_signUpT'];
 	const nonTrimmedField = explicityTrimmedFields.find(
 		field => req.body[field].trim() !== req.body[field]
 
@@ -105,7 +105,6 @@ app.post('/api/teachers', (req, res, next) => {
 	//response object to notify users of error
 	if (nonTrimmedField) {
 		return res.status(422).json({
-			id: 422,
 			reason: 'ValidationError',
 			message: 'Cannot start or end with whitespace',
 			location: nonTrimmedField
@@ -116,7 +115,7 @@ app.post('/api/teachers', (req, res, next) => {
 		email_signUpT: {
 			min: 1
 		},
-		teacher_id_signUpS: {
+		password_signUpT: {
 			min: 6,
 			max: 72
 		}
@@ -152,8 +151,8 @@ app.post('/api/teachers', (req, res, next) => {
 		first_name: first_name_signUpT,
 		last_name: last_name_signUpT,
 		email: email_signUpT,
-		password: teacher_id_signUpS,
-		teacher_id: 1234
+		password: password_signUpT,
+		teacher_id: 1114
 	};
 	knex.insert(newTeacher)
 		.into('teachers')
@@ -170,11 +169,15 @@ app.post('/api/teachers', (req, res, next) => {
 		});
 	//TODO subscripting  [] const results = [result]  const result = results[0];
 });
+console.log('i am the results in just before log-in teacher')
 
 //============LOG IN TEACHER===================
 app.post('/api/auth/login', localAuth, (req, res, next) => {
+	console.log('i am the results in log-in teacher')
+
 	const email_signUpT = req.body.email;
-	const teacher_id_signUpS = req.body.password;
+	const password_signUpT = req.body.password;
+	console.log('I am in log-in teacher', password_signUpT)
 	knex
 		.select('id', 'password')
 		.from('teachers')
@@ -201,12 +204,12 @@ app.post('/api/students', (req, res, next) => {
 
 
 	let { name_signUpS, last_name_signUpS, email_signUpS, password_signUpS, teacher_id_signUpS } = req.body
-	console.log("--------------------------I'm right here!", teacher_id_signUpS)
+	console.log("--------------------------I'm right here! 1", teacher_id_signUpS)
 	const requiredFields = ['name_signUpS', 'last_name_signUpS', 'email_signUpS', 'password_signUpS', 'teacher_id_signUpS'];
 	const missingField = requiredFields.find(field => !(field in req.body));
 
 	if (missingField) {
-		console.log(missingField, '------------------------------')
+		console.log(missingField, '------------------------------ 2')
 		return res.status(422).json({
 			id: 422,
 			reason: 'ValidationError',
@@ -220,7 +223,6 @@ app.post('/api/students', (req, res, next) => {
 	);
 	if (nonStringField) {
 		return res.status(422).json({
-			id: 422,
 			reason: 'ValidationError',
 			message: 'Incorrect field type: expected string',
 			location: nonStringField
@@ -228,7 +230,7 @@ app.post('/api/students', (req, res, next) => {
 	}
 
 	const explicityTrimmedFields = ['email_signUpS', 'password_signUpS'];
-	console.log("--------------------------I'm right here!", teacher_id_signUpS)
+	console.log("--------------------------I'm right here! 3", teacher_id_signUpS)
 
 	const nonTrimmedField = explicityTrimmedFields.find(
 
@@ -237,7 +239,6 @@ app.post('/api/students', (req, res, next) => {
 	);
 	if (nonTrimmedField) {
 		return res.status(422).json({
-			id: 422,
 			reason: 'ValidationError',
 			message: 'Cannot start or end with whitespace',
 			location: nonTrimmedField
@@ -267,7 +268,6 @@ app.post('/api/students', (req, res, next) => {
 
 	if (tooSmallField || tooLargeField) {
 		return res.status(422).json({
-			id: 422,
 			reason: 'ValidationError',
 			message: tooSmallField
 				? `Must be at least ${sizedFields[tooSmallField]
@@ -283,7 +283,7 @@ app.post('/api/students', (req, res, next) => {
 	last_name_signUpS = last_name_signUpS.trim();
 	teacher_id_signUpS = teacher_id_signUpS.trim();
 
-	console.log("--------------------------I'm right here!", teacher_id_signUpS)
+	console.log("--------------------------I'm right here! 4", teacher_id_signUpS)
 	const newStudent = {
 		name: name_signUpS,
 		last_name: last_name_signUpS,
@@ -291,6 +291,8 @@ app.post('/api/students', (req, res, next) => {
 		password: password_signUpS,
 		teacher_id: teacher_id_signUpS
 	};
+	console.log("--------------------------I'm right here! 5", newStudent)
+
 	knex.insert(newStudent)
 		.into('students')
 		.returning(['id', 'name', 'last_name'])
@@ -307,9 +309,10 @@ app.post('/api/students', (req, res, next) => {
 });
 //=======================
 function runServer(databaseUrl, port = PORT) {
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve, reject, next) => {
 		server = app.listen(port, () => {
-			//TODO console.log(`Your app is listening on port ${port}`);
+			//TODO
+			console.log(`Your app is listening on port ${port}`);
 			resolve();
 		})
 			.on('error', err => {
