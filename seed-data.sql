@@ -1,20 +1,20 @@
 --    psql -U dev -f seed-data.sql  practice-app;
 -- ( run in bash shell)
-DROP TABLE IF EXISTS courses;
+-- DROP TABLE IF EXISTS courses;
 DROP TABLE IF EXISTS students;
-DROP TABLE IF EXISTS teachers;
+-- DROP TABLE IF EXISTS teachers;
 -- DROP TABLE IF EXISTS join_;
 
 -- SELECT CURRENT_DATE;
 
-CREATE TABLE teachers (
-	id serial PRIMARY KEY,
-	first_name text NOT NULL,
-	last_name text NOT NULL,
-	email text NOT NULL,
-	password text NOT NULL,
-	teacher_id int NOT NULL
-);
+-- CREATE TABLE teachers (
+-- 	id serial PRIMARY KEY,
+-- 	first_name text NOT NULL,
+-- 	last_name text NOT NULL,
+-- 	email text NOT NULL,
+-- 	password text NOT NULL,
+-- 	teacher_id int NOT NULL
+-- );
 
 CREATE TABLE students (
 	id serial PRIMARY KEY,
@@ -22,15 +22,17 @@ CREATE TABLE students (
 	last_name text ,
 	email text NOT NULL,
 	password text NOT NULL,
-	teacher_id int references teachers ON DELETE CASCADE
+	-- teacher_id int references teacher_id ON DELETE CASCADE
+	teacher_id int NOT NULL
+
 );
 
-CREATE TABLE courses (
-	id serial PRIMARY KEY,
-	title text NOT null,
-	description text ,
-	teacher_id int references teachers(id) ON DELETE CASCADE
-);
+-- CREATE TABLE courses (
+-- 	id serial PRIMARY KEY,
+-- 	title text NOT null,
+-- 	description text ,
+-- 	teacher_id int references teachers(id) ON DELETE CASCADE
+-- );
 -- ALTER SEQUENCE teachers_id_seq RESTART WITH 1000;
 -- ALTER SEQUENCE courses_id_seq RESTART WITH 100;
 -- ALTER SEQUENCE students_id_seq RESTART WITH 500;
@@ -61,26 +63,33 @@ CREATE TABLE courses (
 -- teacher code = 1111
 
 
-INSERT INTO teachers (id, first_name, last_name, email, password, teacher_id) VALUES
-(1001, 'Amanda', 'LeBoeuf', 'photos@cheese.com', 0987654321, 1111),
-(1002, 'Kate', 'Hood', 'hook@yarn.com', 0987654321, 1112),
-(1003, 'Jason', 'Hood', 'anchor@away.com', 0987654321, 1113),
-(1004, 'Dakota', 'Hood', 'buddy@cutie.net', 0987654321, 1114),
-(1005, 'Ray', 'LeBoeuf', 'busy@field.edu', 0987654321, 1115);
+-- INSERT INTO teachers (id, first_name, last_name, email, password, teacher_id) VALUES
+-- (1001, 'Amanda', 'LeBoeuf', 'photos@cheese.com', 0987654321, 1111),
+-- (1002, 'Kate', 'Hood', 'hook@yarn.com', 0987654321, 1112),
+-- (1003, 'Jason', 'Hood', 'anchor@away.com', 0987654321, 1113),
+-- (1004, 'Dakota', 'Hood', 'buddy@cutie.net', 0987654321, 1114),
+-- (1005, 'Ray', 'LeBoeuf', 'busy@field.edu', 0987654321, 1115);
 
-INSERT INTO students (id, name, last_name, email, password, teacher_id) VALUES
-(501, 'Amanda', 'LeBoeuf', 'photos@cheese.com', 0987654321, 1001),
-(502, 'Kate', 'Hood', 'hook@yarn.com', 0987654321, 1002),
-(503, 'Jason', 'Hood', 'anchor@away.com', 0987654321, 1003),
-(504, 'Dakota', 'Hood', 'buddy@cutie.net', 0987654321, 1004),
-(505, 'Ray', 'LeBoeuf', 'busy@field.edu', 0987654321, 1005);
+-- INSERT INTO students (id, name, last_name, email, password, teacher_id) VALUES
+-- (501, 'Amanda', 'LeBoeuf', 'photos@cheese.com', 0987654321, 1001),
+-- (502, 'Kate', 'Hood', 'hook@yarn.com', 0987654321, 1002),
+-- (503, 'Jason', 'Hood', 'anchor@away.com', 0987654321, 1003),
+-- (504, 'Dakota', 'Hood', 'buddy@cutie.net', 0987654321, 1004),
+-- (505, 'Ray', 'LeBoeuf', 'busy@field.edu', 0987654321, 1005);
 
-INSERT INTO courses (id, title, description, teacher_id) VALUES
-(101, 'page1', 'something1', 1001),
-(102, 'page2', 'something2', 1002),
-(103, 'page3', 'something3', 1003),
-(104, 'page3', 'something4', 1004),
-(105, 'page4', 'something5', 1005);
+-- INSERT INTO students (id, name, last_name, email, password) VALUES
+-- (501, 'Amanda', 'LeBoeuf', 'photos@cheese.com', 0987654321),
+-- (502, 'Kate', 'Hood', 'hook@yarn.com', 0987654321),
+-- (503, 'Jason', 'Hood', 'anchor@away.com', 0987654321),
+-- (504, 'Dakota', 'Hood', 'buddy@cutie.net', 0987654321),
+-- (505, 'Ray', 'LeBoeuf', 'busy@field.edu', 0987654321);
+
+-- INSERT INTO courses (id, title, description, teacher_id) VALUES
+-- (101, 'page1', 'something1', 1001),
+-- (102, 'page2', 'something2', 1002),
+-- (103, 'page3', 'something3', 1003),
+-- (104, 'page3', 'something4', 1004),
+-- (105, 'page4', 'something5', 1005);
 
 --============================================= COMMANDS TO SELECT INSERT ETC =============
 -- ADD JOIN

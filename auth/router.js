@@ -14,7 +14,7 @@ const createAuthToken = function (user) {
 		algorithm: "HS256"
 	});
 };
-
+// TODO console.log("looking for user in router server-side = = = = = = = = = = = =")
 const localAuth = passport.authenticate('local', { session: false });
 router.use(bodyParser.json());
 // The user provides an email and password to login

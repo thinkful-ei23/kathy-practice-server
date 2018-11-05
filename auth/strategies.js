@@ -19,6 +19,7 @@ const localStrategy = new LocalStrategy((email, password, callback) => {
 					message: 'Incorrect email or password'
 				});
 			}
+			console.log(user, "looking for error in server-side strategies")
 			return user.validatePassword(password);
 		})
 		.then(isValid => {
